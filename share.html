@@ -1,0 +1,142 @@
+<!doctype html>
+
+<!-- <form id="form"> -->
+    <p>Share to address: <input type="text" id="share_to">
+        <p>Your vehicle: <select id="vehicle"></select>
+        <p><button id="clicker">Share</button>
+    <!-- </form> -->
+
+<script type="module">
+    import { createWalletClient, createPublicClient, http, custom } from 'https://esm.sh/viem';
+    import { polygon } from 'https://esm.sh/viem/chains';
+
+    export const publicClient = createPublicClient({
+        chain: polygon,
+        transport: http()
+    })
+
+    export const walletClient = createWalletClient({
+        chain: polygon,
+        transport: custom(window.ethereum),
+    });
+
+    const [account] = await walletClient.requestAddresses()
+    console.log(account);
+
+    const resp = await fetch("https://identity-api.dimo.zone/query", {
+        "method": "POST",
+        headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    query: `
+    query MyVehicles($me: Address!)
+    {
+      vehicles(first: 10, filterBy: {owner: $me}) {
+        nodes {
+    tokenId
+    definition {
+        make
+        model
+        year
+    }     
+  }
+      }
+    }`,
+    variables: {
+        me: account,
+    }
+  })
+    })
+
+    const respBody = await resp.json();
+    for (const veh of respBody.data.vehicles.nodes) {
+        const thisCar = document.createElement("option");
+        thisCar.value = veh.tokenId;
+        thisCar.innerText = `Token id ${veh.tokenId}: ${veh.definition.year} ${veh.definition.make} ${veh.definition.model}`;
+        document.getElementById("vehicle").appendChild(thisCar);
+    }
+
+    await walletClient.switchChain({ id: polygon.id })
+
+    const abi = [{
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tokenId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "privId",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "expires",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct MultiPrivilege.SetPrivilegeData[]",
+                "name": "privData",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "setPrivileges",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }]
+
+    async function callback() {
+        const shareTo = document.getElementById("share_to").value;
+
+        const tokenId = parseInt(document.getElementById("vehicle").value);
+console.log(shareTo, tokenId)
+        const { request } = await publicClient.simulateContract({
+            address: '0xbA5738a18d83D41847dfFbDC6101d37C69c9B0cF',
+            abi: abi,
+            functionName: 'setPrivileges',
+            args: [[
+                {
+                    tokenId: tokenId,
+                    privId: 1,
+                    user: shareTo,
+                    expires: 1726286149
+                },
+                {
+                    tokenId: tokenId,
+                    privId: 3,
+                    user: shareTo,
+                    expires: 1726286149
+                },
+                {
+                    tokenId: tokenId,
+                    privId: 4,
+                    user: shareTo,
+                    expires: 1726286149
+                },
+                {
+                    tokenId: tokenId,
+                    privId: 6,
+                    user: shareTo,
+                    expires: 1726286149
+                }]
+            ],
+            account
+        })
+
+        await walletClient.writeContract(request)
+    }
+
+    document.getElementById("clicker").onclick=callback;
+
+</script>
+
