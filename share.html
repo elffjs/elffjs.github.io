@@ -5,6 +5,8 @@
     <p>Share to address: <input type="text" id="share_to">
         <p>Your vehicle: <select id="vehicle"></select>
         <p><button id="clicker">Share</button>
+        <p><button id="stream">Create Stream</button>
+            <p id="status">
     <!-- </form> -->
 
 <script type="module">
@@ -59,6 +61,41 @@
     }
 
     await walletClient.switchChain({ id: polygon.id })
+
+    const streamrAbi = [{
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "vehicleId",
+                "type": "uint256"
+            }
+        ],
+        "name": "getVehicleStream",
+        "outputs": [
+            {
+                "internalType": "string",
+                "name": "streamId",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "vehicleId",
+                "type": "uint256"
+            }
+        ],
+        "name": "createVehicleStream",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
 
     const abi = [{
         "inputs": [
@@ -134,10 +171,41 @@ console.log(shareTo, tokenId)
             account
         })
 
-        await walletClient.writeContract(request)
+        const txHash = await walletClient.writeContract(request);
+        document.getElementById("status").innerHTML = `Shared: <a href="https://polygonscan.com/tx/${txHash}">transaction <code>${txHash}</code></a>`;
     }
 
+    async function stream() {
+        const tokenId = parseInt(document.getElementById("vehicle").value);
+
+        const readRes = await publicClient.readContract({
+            address: "0xFA8beC73cebB9D88FF88a2f75E7D7312f2Fd39EC",
+            abi: streamrAbi,
+            functionName: 'getVehicleStream',
+            args: [tokenId],
+        })
+
+        if (readRes === "") {
+        const { request } = await publicClient.simulateContract({
+            address: '0xFA8beC73cebB9D88FF88a2f75E7D7312f2Fd39EC',
+            abi: streamrAbi,
+            functionName: 'createVehicleStream',
+            args: [tokenId],
+            account
+        })
+
+        const txHash = await walletClient.writeContract(request);
+        document.getElementById("status").innerHTML = `Stream creation: <a href="https://polygonscan.com/tx/${txHash}">transaction</a>`;
+    } else {
+        const escaped = encodeURIComponent(readRes);
+        document.getElementById("status").innerHTML = `Vehicle already has stream <a href="https://streamr.network/hub/streams/${escaped}"><code>${readRes}</code></a>`;
+    }
+    }
+
+
     document.getElementById("clicker").onclick=callback;
+    document.getElementById("stream").onclick=stream;
+
 
 </script>
 
