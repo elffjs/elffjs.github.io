@@ -1,9 +1,11 @@
 <!doctype html>
 
 <!-- <form id="form"> -->
-<p>This will share all signals present and historical (privileges 1, 3, 4), as well as data streaming (6), until the end of Sep 13 (Unix timestamp 1726286149).
+<p>This will share all signals present and historical (privileges 1, 3, 4), as well as data streaming (6), until the given Unix timestamp.
     <p>Share to address: <input type="text" id="share_to">
-        <p>Your vehicle: <select id="vehicle"></select>
+    <p>Your vehicle: <select id="vehicle"></select>
+    <p>Share until <a href="https://www.unixtimestamp.com">Unix timestamp</a>: <input type="number" id="expiry">
+
         <p><button id="clicker">Share</button>
         <p><button id="stream">Create Stream</button>
             <p id="status">
@@ -137,6 +139,7 @@
         const shareTo = document.getElementById("share_to").value;
 
         const tokenId = parseInt(document.getElementById("vehicle").value);
+        const expiry = parseInt(document.getElementById("expiry").value);
 console.log(shareTo, tokenId)
         const { request } = await publicClient.simulateContract({
             address: '0xbA5738a18d83D41847dfFbDC6101d37C69c9B0cF',
@@ -147,25 +150,25 @@ console.log(shareTo, tokenId)
                     tokenId: tokenId,
                     privId: 1,
                     user: shareTo,
-                    expires: 1726286149
+                    expires: expiry
                 },
                 {
                     tokenId: tokenId,
                     privId: 3,
                     user: shareTo,
-                    expires: 1726286149
+                    expires: expiry
                 },
                 {
                     tokenId: tokenId,
                     privId: 4,
                     user: shareTo,
-                    expires: 1726286149
+                    expires: expiry
                 },
                 {
                     tokenId: tokenId,
                     privId: 6,
                     user: shareTo,
-                    expires: 1726286149
+                    expires: expiry
                 }]
             ],
             account
