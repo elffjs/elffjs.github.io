@@ -5,7 +5,7 @@
 <p><button id="transfer">Transfer assets</button>
 
 <script type="module">
-    import { createWalletClient, createPublicClient, http, custom } from 'https://esm.sh/viem';
+    import { createWalletClient, createPublicClient, http, custom, formatEther } from 'https://esm.sh/viem';
     import { polygonAmoy } from 'https://esm.sh/viem/chains';
 
     export const publicClient = createPublicClient({
@@ -143,7 +143,7 @@
   args: [account],
 })
 
-document.getElementById("explainer").innerText = `Will transfer vehicles ${vehicleIds}, aftermarket devices ${aftermarketDeviceIds}, and ${balance} $DIMO from ${account}`;
+document.getElementById("explainer").innerText = `Will transfer vehicles [${vehicleIds.join(', ')}], aftermarket devices ${aftermarketDeviceIds.join(', ')}, and ${formatEther(balance)} $DIMO from ${account}`;
 
 
     async function callback() {
