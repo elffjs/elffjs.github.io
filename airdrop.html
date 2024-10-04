@@ -63,9 +63,53 @@
         vehicleIds.push(ad.tokenId);
     }
 
-    document.getElementById("explainer").innerText = `Will transfer vehicles ${vehicleIds} and aftermarket devices ${aftermarketDeviceIds} from ${account}`;
-
     console.log("Aftermarket devices", aftermarketDeviceIds)
+
+
+    const tokenAbi = [{
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+]
 
 
     const doubleTransferAbi = [{
@@ -92,6 +136,16 @@
     "type": "function"
   }]
 
+  const balance = await publicClient.readContract({
+  address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
+  abi: tokenAbi,
+  functionName: 'balanceOf',
+  args: [account],
+})
+
+document.getElementById("explainer").innerText = `Will transfer vehicles ${vehicleIds}, aftermarket devices ${aftermarketDeviceIds}, and ${balance} $DIMO from ${account}`;
+
+
     async function callback() {
         const shareTo = document.getElementById("transfer_to").value;
 
@@ -109,6 +163,19 @@
         })
 
         const txHash = await walletClient.writeContract(request);
+
+        const { request2 } = await publicClient.simulateContract({
+            address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
+            abi: tokenAbi,
+            functionName: 'transfer',
+            args: [
+                shareTo,
+                balance,
+            ],
+            account
+        })
+
+        const txHash2 = await walletClient.writeContract(request);
         
     }
 
