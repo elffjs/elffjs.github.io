@@ -1,6 +1,7 @@
 <!doctype html>
 
 <p>Transfer to: <input type="text" id="transfer_to">
+<p id="explainer">
 <p><button id="transfer">Transfer assets</button>
 
 <script type="module">
@@ -61,6 +62,8 @@
     for (const ad of respBody.data.aftermarketDevices.nodes) {
         vehicleIds.push(ad.tokenId);
     }
+
+    document.getElementById("explainer").innerText = `Will transfer vehicles ${vehicleIds} and aftermarket devices ${aftermarketDeviceIds} from ${account}`;
 
     console.log("Aftermarket devices", aftermarketDeviceIds)
 
