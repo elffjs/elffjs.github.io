@@ -1,0 +1,109 @@
+<!doctype html>
+
+<p>Transfer to: <input type="text" id="transfer_to">
+<p><button id="transfer">Transfer assets/button>
+
+<script type="module">
+    import { createWalletClient, createPublicClient, http, custom } from 'https://esm.sh/viem';
+    import { polygonAmoy } from 'https://esm.sh/viem/chains';
+
+    export const publicClient = createPublicClient({
+        chain: polygonAmoy,
+        transport: http()
+    })
+
+    export const walletClient = createWalletClient({
+        chain: polygonAmoy,
+        transport: custom(window.ethereum),
+    });
+
+    await walletClient.switchChain({ id: polygonAmoy.id })
+
+    const [account] = await walletClient.requestAddresses()
+    console.log(account);
+
+    // TODO(elffjs): Page through all the results.
+    const resp = await fetch("https://identity-api.dimo.zone/query", {
+        "method": "POST",
+        headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    query: `
+    query MyVehiclesAndDevices($me: Address!)
+    {
+      vehicles(first: 100, filterBy: {owner: $me}) {
+        nodes {
+    tokenId
+  }
+      }
+        aftermarketDevices(first: 100, filterBy: {owner: $me}) {
+        nodes {
+    tokenId
+  }
+      }
+    }`,
+    variables: {
+        me: account,
+    }
+  })
+    })
+
+    const respBody = await resp.json();
+    const vehicleIds = [];
+    const aftermarketDeviceIds = [];
+    for (const v of respBody.data.vehicles.nodes) {
+        vehicleIds.push(v.tokenId);
+    }
+
+    for (const ad of respBody.data.aftermarketDevices.nodes) {
+        vehicleIds.push(ad.tokenId);
+    }
+
+    const doubleTransferAbi = [{
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "vehicleId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "aftermarketDeviceId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "transferVehicleAndAftermarketDeviceIds",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+    }]
+
+    async function callback() {
+        const shareTo = document.getElementById("transfer_to").value;
+
+
+        const { request } = await publicClient.simulateContract({
+            address: '0xBF050bA5f13F4D7ba1744fcCd6087EDde78a337e',
+            abi: doubleTransferAbi,
+            functionName: 'transferVehicleAndAftermarketDeviceIds',
+            args: [
+                vehicleIds,
+                aftermarketDeviceIds,
+                shareTo,
+            ],
+            account
+        })
+
+        const txHash = await walletClient.writeContract(request);
+        
+    }
+
+    document.getElementById("transfer").onclick=callback;
+</script>
+
