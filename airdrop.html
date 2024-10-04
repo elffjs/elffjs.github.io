@@ -20,7 +20,7 @@
     await walletClient.switchChain({ id: polygonAmoy.id })
 
     const [account] = await walletClient.requestAddresses()
-    console.log(account);
+    console.log("Wallet", account);
 
     // TODO(elffjs): Page through all the results.
     const resp = await fetch("https://identity-api.dimo.zone/query", {
@@ -56,9 +56,14 @@
         vehicleIds.push(v.tokenId);
     }
 
+    console.log("Vehicles", vehicleIds)
+
     for (const ad of respBody.data.aftermarketDevices.nodes) {
         vehicleIds.push(ad.tokenId);
     }
+
+    console.log("Aftermarket devices", aftermarketDeviceIds)
+
 
     const doubleTransferAbi = [{
     "inputs": [
