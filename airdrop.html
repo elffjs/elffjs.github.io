@@ -68,14 +68,14 @@
     const doubleTransferAbi = [{
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "vehicleId",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "vehicleIds",
+        "type": "uint256[]"
       },
       {
-        "internalType": "uint256",
-        "name": "aftermarketDeviceId",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "aftermarketDeviceIds",
+        "type": "uint256[]"
       },
       {
         "internalType": "address",
@@ -87,7 +87,7 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-    }]
+  }]
 
     async function callback() {
         const shareTo = document.getElementById("transfer_to").value;
