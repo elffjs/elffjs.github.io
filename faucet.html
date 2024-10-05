@@ -61,7 +61,7 @@
 
         const lastDrip = await publicClient.readContract({
   address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
-  abi: tokenAbi,
+  abi: faucetAbi,
   functionName: 'lastDrip',
   args: [shareTo],
 });
@@ -74,7 +74,7 @@
 
         const { request } = await publicClient.simulateContract({
             address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
-            abi: tokenAbi,
+            abi: faucetAbi,
             functionName: 'drip',
             args: [
                 shareTo,
