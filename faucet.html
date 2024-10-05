@@ -1,7 +1,7 @@
 <!doctype html>
 
 <h1>🚰 $OMID Faucet</h1>
-<p>Transfer to: <input type="text" id="transfer_to" style="width: 20em">
+<p id="info">
 <p><button id="drip">Drip</button>
 
 <script type="module">
@@ -13,7 +13,7 @@
         transport: http()
     })
 
-    const faucetAddr = "0xD4dBee472ACB5854DfFe69F1DA404D1Bfc403175";
+    const faucetAddr = "0x1A8fb91b8204596605b312c23E62BD61Fc7c9Eb5";
 
     export const walletClient = createWalletClient({
         chain: polygonAmoy,
@@ -28,13 +28,7 @@
     const faucetAbi = [{
     "type": "function",
     "name": "drip",
-    "inputs": [
-      {
-        "name": "to",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
+    "inputs": [],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -59,21 +53,22 @@
   }
 ];
 
-    async function callback() {
-        const shareTo = document.getElementById("transfer_to").value;
-
-        const lastDrip = await publicClient.readContract({
+const lastDrip = await publicClient.readContract({
   address: faucetAddr,
   abi: faucetAbi,
   functionName: 'lastDrip',
-  args: [shareTo],
+  args: [account],
 });
 
-  console.log("Last drip", lastDrip);
+const now = BigInt(Math.floor(Date.now() / 1000));
 
-      const now = BigInt(Math.floor(Date.now() / 1000));
+if (now - lastDrip < 86400) {
+  document.getElementById("info").innerText = `Wait ${lastDrip + 86400 - now} seconds`;
+} else {
+  document.getElementById("info").innerText = `Drip away`;
+}
 
-
+    async function callback() {
       if (now - lastDrip < 86400) {
         alert("Too soon");
         return;
@@ -83,9 +78,7 @@
             address: faucetAddr,
             abi: faucetAbi,
             functionName: 'drip',
-            args: [
-                shareTo,
-            ],
+            args: [],
             account
         })
 
