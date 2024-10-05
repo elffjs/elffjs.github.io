@@ -1,0 +1,90 @@
+<!doctype html>
+
+<p>Transfer to: <input type="text" id="transfer_to">
+<p><button id="drip">Drip</button>
+
+<script type="module">
+    import { createWalletClient, createPublicClient, http, custom, formatEther } from 'https://esm.sh/viem';
+    import { polygonAmoy } from 'https://esm.sh/viem/chains';
+
+    export const publicClient = createPublicClient({
+        chain: polygonAmoy,
+        transport: http()
+    })
+
+    export const walletClient = createWalletClient({
+        chain: polygonAmoy,
+        transport: custom(window.ethereum),
+    });
+
+    await walletClient.switchChain({ id: polygonAmoy.id })
+
+    const [account] = await walletClient.requestAddresses()
+    console.log("Wallet", account);
+
+    const faucetAbi = [{
+    "type": "function",
+    "name": "drip",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "lastDrip",
+    "inputs": [
+      {
+        "name": "to",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  }
+];
+
+    async function callback() {
+        const shareTo = document.getElementById("transfer_to").value;
+
+        const lastDrip = await publicClient.readContract({
+  address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
+  abi: tokenAbi,
+  functionName: 'lastDrip',
+  args: [shareTo],
+});
+
+      const now = Math.floor(Date.now() / 1000);
+      if (now - lastDrip < 86400) {
+        alert("Too soon");
+        return;
+      }
+
+        const { request } = await publicClient.simulateContract({
+            address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
+            abi: tokenAbi,
+            functionName: 'drip',
+            args: [
+                shareTo,
+            ],
+            account
+        })
+
+        const txHash = await walletClient.writeContract(request);        
+    }
+
+    document.getElementById("drip").onclick=callback;
+</script>
+
