@@ -12,6 +12,8 @@
         transport: http()
     })
 
+    const faucetAddr = "0xe5fB30317FA4650544952809d50395C2F5cE7959";
+
     export const walletClient = createWalletClient({
         chain: polygonAmoy,
         transport: custom(window.ethereum),
@@ -60,7 +62,7 @@
         const shareTo = document.getElementById("transfer_to").value;
 
         const lastDrip = await publicClient.readContract({
-  address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
+  address: faucetAddr,
   abi: faucetAbi,
   functionName: 'lastDrip',
   args: [shareTo],
@@ -74,7 +76,7 @@
 
         const { request } = await publicClient.simulateContract({
             address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
-            abi: faucetAbi,
+            abi: faucetAddr,
             functionName: 'drip',
             args: [
                 shareTo,
