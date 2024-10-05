@@ -13,7 +13,7 @@
         transport: http()
     })
 
-    const faucetAddr = "0xe5fB30317FA4650544952809d50395C2F5cE7959";
+    const faucetAddr = "0xD4dBee472ACB5854DfFe69F1DA404D1Bfc403175";
 
     export const walletClient = createWalletClient({
         chain: polygonAmoy,
@@ -72,6 +72,8 @@
   console.log("Last drip", lastDrip);
 
       const now = BigInt(Math.floor(Date.now() / 1000));
+
+
       if (now - lastDrip < 86400) {
         alert("Too soon");
         return;
