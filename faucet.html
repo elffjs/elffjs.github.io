@@ -69,6 +69,8 @@
   args: [shareTo],
 });
 
+  console.log("Last drip", lastDrip);
+
       const now = BigInt(Math.floor(Date.now() / 1000));
       if (now - lastDrip < 86400) {
         alert("Too soon");
