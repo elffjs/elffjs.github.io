@@ -75,8 +75,8 @@
       }
 
         const { request } = await publicClient.simulateContract({
-            address: '0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10',
-            abi: faucetAddr,
+            address: faucetAddr,
+            abi: faucetAbi,
             functionName: 'drip',
             args: [
                 shareTo,
