@@ -4,6 +4,7 @@
 <p id="user-info">
 <p id="drip-info">
 <p><button id="drip">Drip</button>
+<p id="tx-info"></p>
 
 <script type="module">
     import { createWalletClient, createPublicClient, http, custom, formatEther } from 'https://esm.sh/viem';
@@ -85,7 +86,9 @@ if (now - lastDrip < 86400) {
             account
         })
 
-        const txHash = await walletClient.writeContract(request);        
+        const txHash = await walletClient.writeContract(request);
+
+        document.getElementById("tx-info").innerHTML = `Dripped: <a href="https://polygonscan.com/tx/${txHash}">transaction <code>${txHash}</code></a>`;
     }
 
     document.getElementById("drip").onclick=callback;
