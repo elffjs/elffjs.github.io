@@ -1,6 +1,7 @@
 <!doctype html>
 
 <h1>🚰 $OMID Faucet</h1>
+<p>Get 5 $OMID every 24 hours
 <p id="user-info">
 <p id="drip-info">
 <p><button id="drip">Drip</button>
@@ -66,8 +67,10 @@ const now = BigInt(Math.floor(Date.now() / 1000));
 
 document.getElementById("user-info").innerText = `You are ${account}`;
 
-if (now - lastDrip < 86400) {
-  document.getElementById("drip-info").innerText = `Wait ${lastDrip + 86400 - now} seconds`;
+const oneDay = BigInt(86400);
+
+if (now - lastDrip < oneDay) {
+  document.getElementById("drip-info").innerText = `Wait ${lastDrip + oneDay - now} seconds`;
 } else {
   document.getElementById("drip-info").innerText = `Drip away`;
 }
@@ -88,7 +91,7 @@ if (now - lastDrip < 86400) {
 
         const txHash = await walletClient.writeContract(request);
 
-        document.getElementById("tx-info").innerHTML = `Dripped: <a href="https://polygonscan.com/tx/${txHash}">transaction <code>${txHash}</code></a>`;
+        document.getElementById("tx-info").innerHTML = `Dripped: <a href="https://amoy.polygonscan.com/tx/${txHash}">transaction <code>${txHash}</code></a>`;
     }
 
     document.getElementById("drip").onclick=callback;
