@@ -1,7 +1,8 @@
 <!doctype html>
 
 <h1>🚰 $OMID Faucet</h1>
-<p id="info">
+<p id="user-info">
+<p id="drip-info">
 <p><button id="drip">Drip</button>
 
 <script type="module">
@@ -62,10 +63,12 @@ const lastDrip = await publicClient.readContract({
 
 const now = BigInt(Math.floor(Date.now() / 1000));
 
+document.getElementById("user-info").innerText = `You are ${account}`;
+
 if (now - lastDrip < 86400) {
-  document.getElementById("info").innerText = `Wait ${lastDrip + 86400 - now} seconds`;
+  document.getElementById("drip-info").innerText = `Wait ${lastDrip + 86400 - now} seconds`;
 } else {
-  document.getElementById("info").innerText = `Drip away`;
+  document.getElementById("drip-info").innerText = `Drip away`;
 }
 
     async function callback() {
