@@ -16,6 +16,7 @@
         transport: http()
     })
 
+    const tokenAddr = "0x21cFE003997fB7c2B3cfe5cf71e7833B7B2eCe10";
     const faucetAddr = "0x1A8fb91b8204596605b312c23E62BD61Fc7c9Eb5";
 
     export const walletClient = createWalletClient({
@@ -27,6 +28,26 @@
 
     const [account] = await walletClient.requestAddresses()
     console.log("Wallet", account);
+
+    const tokenAbi = [{
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }]
 
     const faucetAbi = [{
     "type": "function",
@@ -63,9 +84,16 @@ const lastDrip = await publicClient.readContract({
   args: [account],
 });
 
+const balance = await publicClient.readContract({
+  address: tokenAddr,
+  abi: tokenAbi,
+  functionName: 'balanceOf',
+  args: [account],
+});
+
 const now = BigInt(Math.floor(Date.now() / 1000));
 
-document.getElementById("user-info").innerText = `You are ${account}`;
+document.getElementById("user-info").innerText = `You are ${account}, you have ${formatEther(balance)} $OMID`;
 
 const oneDay = BigInt(86400);
 
